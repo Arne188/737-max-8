@@ -1,10 +1,10 @@
 <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TUI 737 MAX 8 · Designlabor</title>
 <style>:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#091626;color:#eaf2fb;font:15px system-ui}header{padding:14px 18px;background:#152a42}h1{font-size:1.2rem;margin:0}header p{margin:5px 0;color:#b9c9dc}#view{height:67vh;min-height:340px;touch-action:none}main{max-width:940px;margin:auto;padding:15px}.buttons{display:flex;flex-wrap:wrap;gap:8px}button{border:1px solid #5c7591;background:#203e5b;color:white;border-radius:9px;padding:10px 12px;font:inherit}button[aria-pressed=true]{background:#ffc04a;color:#13243b;border-color:#ffc04a}.note{border-left:3px solid #ffc04a;padding-left:12px;line-height:1.55;color:#c7d6e7}a{color:#99d8ff}#status{color:#bcd0e4;font-size:.9rem;margin-top:10px}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script></head>
-<body><header><h1>TUI 737 MAX 8 · LEGO Designlabor</h1><p>Version 0.3 · Originalform + schrittweiser LEGO-Nasenaufbau</p></header><div id="view"></div><main>
-<div class="buttons"><button data-part="all" aria-pressed="true">Gesamt</button><button data-part="body">Rumpf</button><button data-part="wings">Tragflächen</button><button data-part="engines">Triebwerke</button><button data-part="tail">Leitwerk</button><button id="reset">Ansicht zurücksetzen</button><button id="lego" aria-pressed="false">LEGO-Nase einblenden</button><button id="ghost" aria-pressed="false">Form transparent</button></div>
+<body><header><h1>TUI 737 MAX 8 · LEGO Designlabor</h1><p>Version 0.4 · LEGO-Steine deutlich sichtbar</p></header><div id="view"></div><main>
+<div class="buttons"><button data-part="all" aria-pressed="true">Gesamt</button><button data-part="body">Rumpf</button><button data-part="wings">Tragflächen</button><button data-part="engines">Triebwerke</button><button data-part="tail">Leitwerk</button><button id="reset">Ansicht zurücksetzen</button><button id="lego" aria-pressed="true">LEGO-Nase ausblenden</button><button id="detail">LEGO-Nase groß ansehen</button><button id="solo">Nur LEGO-Steine</button><button id="ghost" aria-pressed="false">Form transparent</button></div>
 <div id="status">Drehen: 1 Finger · Zoomen: 2 Finger · Teile einzeln auswählen</div>
-<p class="note"><strong>Konstruktionsstatus:</strong> Die ursprüngliche Flugzeugform bleibt unverändert. Die erste LEGO-Baugruppe wird am gleichen Koordinatensystem darübergelegt: eine stufige Nasenhülle aus 1×2-Steinen. Dies ist ein unvalidierter Platzierungsentwurf, keine geprüfte Bauanleitung.</p>
+<p class="note"><strong>Konstruktionsstatus:</strong> Die originale Flugzeugform bleibt als Vergleich erhalten. Die neue Nasenstudie zeigt einzeln erkennbare Steine, Fugen und Noppen. Die Steine sind als geometrischer LEGO-Stil-Prototyp angeordnet, nicht als mechanisch geprüfte, baubare Baugruppe.</p>
 <p><a href="wing-lab.html">Tragflächenlabor</a> · <a href="https://github.com/Arne188/737-max-8">Projektdateien auf GitHub</a></p></main>
 <script type="module">
 import * as THREE from 'three';import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
@@ -53,24 +53,42 @@ polygon(groups.tail,[[s*.9,.5,15.2],[s*7.4,.82,18.8],[s*7.3,.82,20.1],[s*.9,.5,1
 // vertical stabilizer
 polygon(groups.tail,[[0,1.0,15.5],[0,7.6,18.7],[0,7.8,20.3],[0,1.0,20.6]],orange);
 
-const legoNose=new THREE.Group();scene.add(legoNose);legoNose.visible=false;
-const legoParts=[];const studGeo=new THREE.CylinderGeometry(.105,.105,.065,10);
-const brickGeo=new THREE.BoxGeometry(.34,.31,.69);
-function placeBrick(x,y,z,color){const mat=color==='blue'?blue:color==='glass'?windowMat:color==='yellow'?yellow:white;
-const brick=new THREE.Mesh(brickGeo,mat);brick.position.set(x,y,z);legoNose.add(brick);
-for(const dz of [-.175,.175]){const stud=new THREE.Mesh(studGeo,mat);stud.position.set(x,y+.188,z+dz);legoNose.add(stud)}
-legoParts.push({x,y,z,color,part:'3004.dat'});}
-const noseLevels=[
-{z:-19.5,r:.36},{z:-18.8,r:.65},{z:-18.1,r:.94},{z:-17.4,r:1.20},
-{z:-16.7,r:1.43},{z:-16.0,r:1.58},{z:-15.3,r:1.72},{z:-14.6,r:1.76},
-{z:-13.9,r:1.76},{z:-13.2,r:1.76},{z:-12.5,r:1.76},{z:-11.8,r:1.76}];
-for(const layer of noseLevels){for(let y=-1.55;y<=1.55;y+=.32){for(let x=-1.55;x<=1.55;x+=.35){
-const d=Math.hypot(x,y);if(d>layer.r||d<layer.r-.39)continue;
-const cockpit=(layer.z< -16.6&&layer.z> -19&&y>.55&&Math.abs(x)>.38);
-placeBrick(x,y,layer.z,cockpit?'glass':'blue');
-}}}
-document.getElementById('lego').onclick=()=>{legoNose.visible=!legoNose.visible;document.getElementById('lego').setAttribute('aria-pressed',String(legoNose.visible));document.getElementById('lego').textContent=legoNose.visible?'LEGO-Nase ausblenden':'LEGO-Nase einblenden';};
-let ghost=false;const originalMats=[white,blue,navy,orange,yellow,metal,black,windowMat];document.getElementById('ghost').onclick=()=>{ghost=!ghost;for(const mat of originalMats){mat.transparent=ghost;mat.opacity=ghost?.25:1;mat.depthWrite=!ghost;}document.getElementById('ghost').setAttribute('aria-pressed',String(ghost));};
+
+const legoNose=new THREE.Group();scene.add(legoNose);legoNose.visible=true;
+const legoParts=[];const studGeo=new THREE.CylinderGeometry(.105,.105,.065,14);
+const brickGeo=new THREE.BoxGeometry(.36,.31,.72);
+const edgeGeo=new THREE.EdgesGeometry(brickGeo);
+const edgeMat=new THREE.LineBasicMaterial({color:0x0b253c,transparent:true,opacity:.35});
+const legoMat={blue:new THREE.MeshStandardMaterial({color:0x0074b9,roughness:.31}),glass:new THREE.MeshStandardMaterial({color:0x18364e,roughness:.25}),yellow:new THREE.MeshStandardMaterial({color:0xffd33a,roughness:.35})};
+function placeBrick(x,y,z,color,angle){
+ const mat=legoMat[color]||legoMat.blue;
+ const part=new THREE.Group();part.position.set(x,y,z);part.rotation.z=angle;
+ const brick=new THREE.Mesh(brickGeo,mat);part.add(brick);
+ const outline=new THREE.LineSegments(edgeGeo,edgeMat);part.add(outline);
+ for(const dz of [-.18,.18]){const stud=new THREE.Mesh(studGeo,mat);stud.position.set(0,.19,dz);part.add(stud)}
+ legoNose.add(part);legoParts.push({x,y,z,color,part:'3004.dat'});
+}
+// Radial placement of 1x2 bricks around successive nose cross-sections.
+// Surface normals and studs point outward, so the LEGO texture is visible.
+const levels=[[-19.5,.46],[-18.8,.68],[-18.1,.94],[-17.4,1.18],[-16.7,1.39],[-16.0,1.57],[-15.3,1.73],[-14.6,1.78],[-13.9,1.78],[-13.2,1.78],[-12.5,1.78],[-11.8,1.78]];
+for(let k=0;k<levels.length;k++){
+ const [z,r]=levels[k],n=Math.max(8,Math.round(2*Math.PI*r/.39));
+ for(let i=0;i<n;i++){
+  const theta=2*Math.PI*(i+(k%2)*.5)/n;
+  const x=Math.sin(theta)*r,y=Math.cos(theta)*r;
+  const cockpit=z< -16.4&&z> -19.2&&y>.55&&Math.abs(x)>.38;
+  placeBrick(x,y,z,cockpit?'glass':'blue',-theta);
+ }
+}
+// Two demonstrative longitudinal rails show where a real supporting structure must be developed.
+const beamMat=new THREE.MeshStandardMaterial({color:0x8c99a9,roughness:.52});
+for(const side of [-1,1]){const beam=new THREE.Mesh(new THREE.BoxGeometry(.22,.22,6.9),beamMat);beam.position.set(side*.78,-.82,-15.2);legoNose.add(beam)}
+const legoBtn=document.getElementById('lego'),detailBtn=document.getElementById('detail'),soloBtn=document.getElementById('solo');
+function focusNose(){camera.position.set(8,5,-25);controls.target.set(0,0,-15.7);controls.update()}
+legoBtn.onclick=()=>{legoNose.visible=!legoNose.visible;legoBtn.setAttribute('aria-pressed',String(legoNose.visible));legoBtn.textContent=legoNose.visible?'LEGO-Nase ausblenden':'LEGO-Nase einblenden'};
+detailBtn.onclick=()=>{legoNose.visible=true;legoBtn.setAttribute('aria-pressed','true');legoBtn.textContent='LEGO-Nase ausblenden';focusNose()};
+let onlyLego=false;soloBtn.onclick=()=>{onlyLego=!onlyLego;Object.values(groups).forEach(g=>g.visible=!onlyLego);legoNose.visible=true;soloBtn.setAttribute('aria-pressed',String(onlyLego));if(onlyLego)focusNose();else{camera.position.set(27,17,-31);controls.target.set(0,0,0);controls.update()}};
+let ghost=false;const originalMats=[white,blue,navy,orange,yellow,metal,black,windowMat];document.getElementById('ghost').onclick=()=>{ghost=!ghost;for(const mat of originalMats){mat.transparent=ghost;mat.opacity=ghost?.16:1;mat.depthWrite=!ghost;}document.getElementById('ghost').setAttribute('aria-pressed',String(ghost));};
 
 function resize(){const w=el.clientWidth,h=el.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}window.addEventListener('resize',resize);resize();
 function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera)}loop();
