@@ -1,0 +1,1 @@
+# LEGO-Modelldaten\n\nHier werden geprüfte LDraw-Dateien (.ldr) und BrickLink-Studio-Dateien (.io) abgelegt. Noch keine Baugruppe freigegeben.\n
