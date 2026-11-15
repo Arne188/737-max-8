@@ -37,3 +37,6 @@
 - [ ] Bauanleitung schrittweise erstellen
 
 **Status:** Planung und Formreferenz, noch kein baubarer LEGO-MOC.
+
+## Veröffentlichung
+- GitHub Pages: Quelle GitHub Actions; Veröffentlichung durch Änderungen in `docs/` ausgelöst.
