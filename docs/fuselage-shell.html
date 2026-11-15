@@ -1,0 +1,36 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>737 MAX 8 · Baugruppe 005</title><style>*{box-sizing:border-box}body{margin:0;background:#091524;color:#edf4fc;font:15px system-ui}header,main{max-width:980px;margin:auto;padding:15px}h1{font-size:1.3rem;margin:0}header p{color:#b9cadb}#view{height:64vh;min-height:370px;touch-action:none}.buttons{display:flex;gap:7px;flex-wrap:wrap}button{border:1px solid #6c8da9;border-radius:8px;background:#24425e;color:#fff;padding:10px;font:inherit}button.on{background:#ffd05c;color:#182638}.notice{border-left:3px solid #ffd05c;padding:9px 12px;background:#172b42;line-height:1.5}a{color:#9ad7ff}</style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script></head><body><header><h1>Baugruppe 005 · Gestufter 737-Rumpf</h1><p>LEGO-Außenhaut · Fensterband · Kabinenboden · Innenansicht</p></header><div id="view"></div><main><div class="buttons"><button id="all" class="on">Alle Steine</button><button id="skin">Außenhaut</button><button id="windows">Fensterband</button><button id="floor">Kabinenboden</button><button id="cut">Schnittansicht</button><button id="reset">Ansicht zurück</button><button id="export">LDraw exportieren</button></div><p id="count"></p><p class="notice"><strong>Entwicklungsmodell, nicht baubar validiert:</strong> Der gestufte Querschnitt besteht aus orthogonal ausgerichteten 1×2-Steinen (3004) und 2×4-Platten (3020). Die Teile werden aus derselben Datenliste gerendert und exportiert. Die gestuften Lagen sind eine visuelle Annäherung an die runde 737-Außenhaut. Tragfähigkeit, Stud-Verbindungen, Überlappungen und Fensterbefestigung sind noch nicht in BrickLink Studio geprüft.</p><p><a href="index.html">Zur vollständigen 737-Formreferenz</a> · <a href="fuselage-frames.html">Vorherige Spantenstudie</a></p></main><script type="module">
+import * as T from 'three';import{OrbitControls}from'three/addons/controls/OrbitControls.js';
+const el=document.getElementById('view'),scene=new T.Scene();scene.background=new T.Color(0x091524);scene.add(new T.HemisphereLight(0xffffff,0x263b5b,2.8));const light=new T.DirectionalLight(0xffffff,2.3);light.position.set(-9,20,-13);scene.add(light);
+const camera=new T.PerspectiveCamera(44,1,.1,150);camera.position.set(17,14,21);const controls=new OrbitControls(camera,new T.WebGLRenderer().domElement);
+// Replace the unused renderer-created control canvas with the real one.
+controls.dispose();const renderer=new T.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));el.appendChild(renderer.domElement);const orbit=new OrbitControls(camera,renderer.domElement);orbit.enableDamping=true;orbit.target.set(0,3,0);
+const parts=[],groups={skin:new T.Group(),windows:new T.Group(),floor:new T.Group()};Object.values(groups).forEach(g=>scene.add(g));
+const colorCodes={white:15,black:0,blue:1,gray:71};const materials={white:new T.MeshStandardMaterial({color:0xf1f3f2,roughness:.38}),black:new T.MeshStandardMaterial({color:0x192737,roughness:.31}),blue:new T.MeshStandardMaterial({color:0x087fc0,roughness:.37}),gray:new T.MeshStandardMaterial({color:0x9da9b7,roughness:.52})};
+function add(id,x,y,z,color,section,rot=false){parts.push({id,x,y,z,color,section,rot})}
+// Layered stepped cross-section: x positions shift inwards at top/bottom.
+// Brick height 3 plates; y measured in plates. Four z stations across 16 studs.
+const bands=[{y:0,half:2},{y:3,half:3},{y:6,half:4},{y:9,half:4},{y:12,half:4},{y:15,half:3},{y:18,half:2}];
+for(let bi=0;bi<bands.length;bi++){const b=bands[bi];for(const z of [-6,-4,-2,0,2,4,6]){
+ for(const side of [-1,1]){
+  const x=side*b.half;const isWindow=(bi===4&&z%4===0);
+  const c=isWindow?'black':bi===3&&z<0?'blue':'white';
+  add('3004',x,b.y,z,c,isWindow?'windows':'skin');
+ }
+}}
+// Roof and keel: 2x4 plates, staggered by one stud for visual interlocking.
+for(const y of [-1,21])for(const z of [-6,-2,2,6])for(const x of [-1,1])add('3020',x,y,z,'white','skin');
+// Cabin floor is intentionally a distinct module, at y=6 plates.
+for(const z of [-6,-2,2,6])for(const x of [-2,0,2])add('3020',x,6,z,'gray','floor');
+const studGeo=new T.CylinderGeometry(.245,.245,.12,14),edgeMat=new T.LineBasicMaterial({color:0x102337,transparent:true,opacity:.48});
+for(const p of parts){const brick=p.id==='3004',w=brick?1:2,l=brick?2:4,h=brick?1.2:.4;
+ const grp=new T.Group();grp.position.set(p.x,p.y*.4+h/2,p.z);if(p.rot)grp.rotation.y=Math.PI/2;
+ const geo=new T.BoxGeometry(w-.035,h-.025,l-.035);grp.add(new T.Mesh(geo,materials[p.color]));grp.add(new T.LineSegments(new T.EdgesGeometry(geo),edgeMat));
+ for(let i=0;i<w;i++)for(let j=0;j<l;j++){const stud=new T.Mesh(studGeo,materials[p.color]);stud.position.set(i-(w-1)/2,h/2+.06,j-(l-1)/2);grp.add(stud)}groups[p.section].add(grp)}
+function mode(k){for(const[name,g]of Object.entries(groups))g.visible=k==='all'||name===k;document.querySelectorAll('.buttons button').forEach(b=>b.classList.toggle('on',b.id===k));document.getElementById('count').textContent=parts.filter(p=>k==='all'||p.section===k).length+' sichtbare LEGO-Teile · '+parts.length+' Teile insgesamt'}
+for(const k of ['all','skin','windows','floor'])document.getElementById(k).onclick=()=>mode(k);
+document.getElementById('cut').onclick=()=>{mode('all');camera.position.set(21,10,.2);orbit.target.set(0,3.6,0);orbit.update()};
+document.getElementById('reset').onclick=()=>{mode('all');camera.position.set(17,14,21);orbit.target.set(0,3,0);orbit.update()};
+function ldraw(){const a=['0 FILE fuselage_shell_005.ldr','0 TUI 737 MAX 8 - stepped shell conceptual model','0 Name: fuselage_shell_005.ldr','0 // Not Studio validated. Same placement list as web viewer.'];for(const p of parts){const mat=p.rot?'0 0 1 0 1 0 -1 0 0':'1 0 0 0 1 0 0 0 1';a.push('1 '+colorCodes[p.color]+' '+p.x*20+' '+(-p.y*8)+' '+p.z*20+' '+mat+' '+p.id+'.dat')}return a.join('\n')+'\n'}
+document.getElementById('export').onclick=()=>{const b=new Blob([ldraw()],{type:'text/plain'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='fuselage_shell_005.ldr';a.click();setTimeout(()=>URL.revokeObjectURL(u),2000)};
+function resize(){renderer.setSize(el.clientWidth,el.clientHeight);camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();mode('all');function loop(){requestAnimationFrame(loop);orbit.update();renderer.render(scene,camera)}loop();
+</script></body></html>
