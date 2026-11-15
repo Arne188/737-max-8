@@ -1,41 +1,59 @@
-<!doctype html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TUI 737 MAX 8 – LEGO Designlabor</title>
-<style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#091525;color:#edf3fa;font:15px system-ui,sans-serif}header{padding:14px 18px;background:#13253c}h1{margin:0;font-size:1.25rem}header p{margin:5px 0 0;color:#b9c9db}#view{height:65vh;min-height:350px;touch-action:none}main{padding:14px 18px;max-width:920px;margin:auto}.controls{display:flex;flex-wrap:wrap;gap:8px}button{border:1px solid #48607d;background:#1d3652;color:#fff;padding:10px 14px;border-radius:10px;font:inherit}button[aria-pressed=true]{background:#efb33c;color:#142034;border-color:#efb33c}.meta{color:#c0d0e0;line-height:1.5}a{color:#9ad5ff}.note{border-left:3px solid #efb33c;padding-left:12px}
-</style>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
-</head><body><header><h1>TUI Boeing 737 MAX 8 · LEGO MOC</h1><p>Mobiler 3D-Viewer · Projektstart auf GitHub</p></header>
-<div id="view" role="img" aria-label="Drehbares dreidimensionales Referenzmodell einer Boeing 737 MAX 8"></div>
-<main><div class="controls"><button data-part="all" aria-pressed="true">Gesamt</button><button data-part="body" aria-pressed="false">Rumpf</button><button data-part="wings" aria-pressed="false">Flügel</button><button data-part="engines" aria-pressed="false">Triebwerke</button><button data-part="tail" aria-pressed="false">Leitwerk</button></div>
-<p class="meta">Mit einem Finger drehen, mit zwei Fingern zoomen. Maßstab: ungefähr 1:50 · Ziel: 79 cm Länge / 72 cm Spannweite.</p>
-<p class="note"><strong>Wichtig:</strong> Dies ist eine geometrische Formreferenz, <strong>keine</strong> geprüfte LEGO-Konstruktion. Die tatsächliche Studio-/LDraw-Bauweise wird separat entwickelt und später aus denselben Konstruktionsdaten angezeigt.</p>
-<p><a href="ARBEITSLISTE.md">Arbeitsliste und Prüfstatus</a> · <a href="https://github.com/Arne188/737-max-8">GitHub-Repository</a></p></main>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TUI 737 MAX 8 · Designlabor</title>
+<style>:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#091626;color:#eaf2fb;font:15px system-ui}header{padding:14px 18px;background:#152a42}h1{font-size:1.2rem;margin:0}header p{margin:5px 0;color:#b9c9dc}#view{height:67vh;min-height:340px;touch-action:none}main{max-width:940px;margin:auto;padding:15px}.buttons{display:flex;flex-wrap:wrap;gap:8px}button{border:1px solid #5c7591;background:#203e5b;color:white;border-radius:9px;padding:10px 12px;font:inherit}button[aria-pressed=true]{background:#ffc04a;color:#13243b;border-color:#ffc04a}.note{border-left:3px solid #ffc04a;padding-left:12px;line-height:1.55;color:#c7d6e7}a{color:#99d8ff}#status{color:#bcd0e4;font-size:.9rem;margin-top:10px}</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script></head>
+<body><header><h1>TUI 737 MAX 8 · LEGO Designlabor</h1><p>Version 0.2 · verbesserte Flugzeuggeometrie</p></header><div id="view"></div><main>
+<div class="buttons"><button data-part="all" aria-pressed="true">Gesamt</button><button data-part="body">Rumpf</button><button data-part="wings">Tragflächen</button><button data-part="engines">Triebwerke</button><button data-part="tail">Leitwerk</button><button id="reset">Ansicht zurücksetzen</button></div>
+<div id="status">Drehen: 1 Finger · Zoomen: 2 Finger · Teile einzeln auswählen</div>
+<p class="note"><strong>Konstruktionsstatus:</strong> Dies ist eine proportionierte 3D-Formstudie, noch kein LEGO-Modell. Die TUI-Sonderlackierung ist vereinfacht. Echte LEGO-Teile, Verbindungspunkte und Stabilität sind noch nicht geprüft.</p>
+<p><a href="wing-lab.html">Tragflächenlabor</a> · <a href="https://github.com/Arne188/737-max-8">Projektdateien auf GitHub</a></p></main>
 <script type="module">
 import * as THREE from 'three';import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-const el=document.getElementById('view');const scene=new THREE.Scene();scene.background=new THREE.Color(0x091525);
-const camera=new THREE.PerspectiveCamera(42,1,.1,200);camera.position.set(23,15,30);
+const el=document.getElementById('view'),scene=new THREE.Scene();scene.background=new THREE.Color(0x091626);
+const camera=new THREE.PerspectiveCamera(40,1,.1,200);camera.position.set(27,17,-31);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));el.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.target.set(0,0,0);
-scene.add(new THREE.HemisphereLight(0xffffff,0x283c59,2.5));const light=new THREE.DirectionalLight(0xffffff,2);light.position.set(12,18,10);scene.add(light);
-const mat=(c)=>new THREE.MeshStandardMaterial({color:c,roughness:.57,metalness:.1,side:THREE.DoubleSide});
-const white=mat(0xe7eef4),blue=mat(0x0873b9),orange=mat(0xf18b28),dark=mat(0x16283a),silver=mat(0xa4b2bf),yellow=mat(0xf7cb38);
+scene.add(new THREE.HemisphereLight(0xffffff,0x354b6a,2.6));const sun=new THREE.DirectionalLight(0xffffff,2.1);sun.position.set(-12,25,-20);scene.add(sun);
+const M=c=>new THREE.MeshStandardMaterial({color:c,metalness:.08,roughness:.64,side:THREE.DoubleSide});
+const white=M(0xf0f2f1),blue=M(0x0874bd),navy=M(0x132a40),orange=M(0xf28c28),yellow=M(0xffcf31),metal=M(0x9ba7b1),black=M(0x121a24),windowMat=M(0x182c43);
 const groups={body:new THREE.Group(),wings:new THREE.Group(),engines:new THREE.Group(),tail:new THREE.Group()};Object.values(groups).forEach(g=>scene.add(g));
-function sphere(g,x,y,z,sx,sy,sz,m){const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,32,20),m);mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);g.add(mesh);return mesh}
-function panel(g,pts,m){const s=new THREE.Shape();s.moveTo(...pts[0]);pts.slice(1).forEach(p=>s.lineTo(...p));s.closePath();const mesh=new THREE.Mesh(new THREE.ShapeGeometry(s),m);g.add(mesh);return mesh}
-sphere(groups.body,0,0,0,1.85,1.8,17.4,white);
-sphere(groups.body,0,0,-16.3,1.72,1.65,2.9,blue);
-sphere(groups.body,0,0,16.9,1.15,1.15,2.7,white);
-for(const side of [-1,1]){
-const wing=panel(groups.wings,[[side*1.4,-5.3],[side*17.3,1.5],[side*16.6,3.4],[side*1.4,3.3]],white);wing.rotation.x=-Math.PI/2;wing.position.y=-.45;
-const tip=panel(groups.wings,[[side*16.6,1.5],[side*18,2.1],[side*18.2,3.1],[side*16.6,3.4]],blue);tip.rotation.x=-Math.PI/2;tip.position.y=.45;
-sphere(groups.engines,side*5.8,-2.15,-3.6,1.24,1.24,2.35,white);
-sphere(groups.engines,side*5.8,-2.15,-5.5,1.18,1.18,.22,silver);
-sphere(groups.engines,side*5.8,-2.15,-5.71,.84,.84,.09,dark);
-const stabilizer=panel(groups.tail,[[side*.8,15.0],[side*6.6,17.2],[side*6.4,18.3],[side*.8,17.4]],white);stabilizer.rotation.x=-Math.PI/2;stabilizer.position.y=.3;
+function mesh(g,geo,mat,x=0,y=0,z=0){const o=new THREE.Mesh(geo,mat);o.position.set(x,y,z);g.add(o);return o}
+function ellipsoid(g,x,y,z,a,b,c,mat){const o=mesh(g,new THREE.SphereGeometry(1,32,20),mat,x,y,z);o.scale.set(a,b,c);return o}
+function cylinder(g,r1,r2,len,mat,x,y,z){const o=mesh(g,new THREE.CylinderGeometry(r1,r2,len,32),mat,x,y,z);o.rotation.x=Math.PI/2;return o}
+function polygon(g,pts,mat){const v=[],ind=[];for(const p of pts)v.push(...p);for(let i=1;i<pts.length-1;i++)ind.push(0,i,i+1);const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(v,3));geo.setIndex(ind);geo.computeVertexNormals();return mesh(g,geo,mat)}
+// Longitudinal z: negative = nose, positive = tail. Wings span x, vertical y.
+const body=groups.body;
+cylinder(body,1.78,1.78,29.0,white,0,0,-.8);
+ellipsoid(body,0,0,-16.3,1.78,1.78,3.6,blue);
+ellipsoid(body,0,0,15.3,1.58,1.58,4.5,white);
+// nose cockpit glazing
+for(const s of [-1,1]){const o=ellipsoid(body,s*.83,.79,-18.15,.63,.26,.66,windowMat);o.rotation.y=s*.2}
+// blue forward and yellow livery band
+cylinder(body,1.795,1.795,4.2,blue,0,0,-12.2);
+cylinder(body,1.802,1.802,1.25,yellow,0,0,-9.55);
+// rows of windows along fuselage, upper sides
+for(const s of [-1,1])for(let z=-7.8;z<14.3;z+=1.16){const o=ellipsoid(body,s*1.64,.67,z,.13,.16,.29,windowMat);o.rotation.z=s*.22}
+// black/white checker panels on center fuselage as surface patches
+for(const s of [-1,1])for(let i=0;i<11;i++)for(let j=0;j<2;j++){if((i+j)%2===0){const z=-7.6+i*1.5;const y=-.9+j*.85;ellipsoid(body,s*1.73,y,z,.045,.38,.68,black)}}
+// swept tapered wings, leading root -3, tip +4.8
+for(const s of [-1,1]){
+const wing=polygon(groups.wings,[[s*1.5,-.38,-3.6],[s*17.0,.15,4.2],[s*17.7,.2,5.0],[s*1.5,-.38,5.3]],white);
+polygon(groups.wings,[[s*1.5,-.53,-3.6],[s*17.0,.02,4.2],[s*17.7,.02,5],[s*1.5,-.53,5.3]],metal);
+// upper split scimitar and lower extension
+polygon(groups.wings,[[s*17.0,.15,4.2],[s*18.4,2.7,4.7],[s*18.1,3.1,5.35],[s*17.7,.2,5.0]],blue);
+polygon(groups.wings,[[s*17.0,.15,4.2],[s*18.0,-2.05,4.7],[s*17.7,-2.2,5.35],[s*17.7,.2,5.0]],blue);
+// engine pylons and nacelles under wings
+polygon(groups.engines,[[s*5.6,-.4,-2.2],[s*6.9,-.55,-1.8],[s*6.9,-2.1,-.6],[s*5.6,-2.1,-.6]],metal);
+cylinder(groups.engines,1.13,1.22,3.7,white,s*6.2,-2.1,-2.0);
+cylinder(groups.engines,1.14,1.14,.22,metal,s*6.2,-2.1,-3.9);
+cylinder(groups.engines,.87,.87,.07,black,s*6.2,-2.1,-4.03);
+const fan=ellipsoid(groups.engines,s*6.2,-2.1,-4.09,.34,.34,.05,metal);
+// horizontal stabilizers
+polygon(groups.tail,[[s*.9,.5,15.2],[s*7.4,.82,18.8],[s*7.3,.82,20.1],[s*.9,.5,19.2]],white);
 }
-const fin=panel(groups.tail,[[14.1,0],[19.3,0],[17.6,6.1],[16.1,6.1]],orange);fin.rotation.y=Math.PI/2;fin.position.y=1.2;
+// vertical stabilizer
+polygon(groups.tail,[[0,1.0,15.5],[0,7.6,18.7],[0,7.8,20.3],[0,1.0,20.6]],orange);
 function resize(){const w=el.clientWidth,h=el.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}window.addEventListener('resize',resize);resize();
-function frame(){requestAnimationFrame(frame);controls.update();renderer.render(scene,camera)}frame();
-document.querySelectorAll('button[data-part]').forEach(btn=>btn.addEventListener('click',()=>{const part=btn.dataset.part;Object.entries(groups).forEach(([k,g])=>g.visible=part==='all'||k===part);document.querySelectorAll('button[data-part]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)))}));
+function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera)}loop();
+document.querySelectorAll('[data-part]').forEach(b=>b.addEventListener('click',()=>{const p=b.dataset.part;for(const [k,g]of Object.entries(groups))g.visible=p==='all'||k===p;document.querySelectorAll('[data-part]').forEach(q=>q.setAttribute('aria-pressed',String(q===b)))}));
+document.getElementById('reset').onclick=()=>{camera.position.set(27,17,-31);controls.target.set(0,0,0);controls.update()};
 </script></body></html>
