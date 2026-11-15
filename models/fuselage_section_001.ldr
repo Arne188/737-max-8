@@ -1,0 +1,15 @@
+0 FILE fuselage_section_001.ldr
+0 TUI 737 MAX 8 - fuselage section 001 / floor test
+0 Name: fuselage_section_001.ldr
+0 Author: ChatGPT
+0 !LICENSE Redistributable under CC0-1.0
+0 // First connected floor assembly; no round fuselage skin yet.
+0 // Real LDraw part IDs; geometry and connection check pending in BrickLink Studio.
+0 STEP
+1 71 -40 0 -20 1 0 0 0 1 0 0 0 1 3034.dat
+1 71 40 0 -20 1 0 0 0 1 0 0 0 1 3034.dat
+0 STEP
+1 71 -40 -8 20 1 0 0 0 1 0 0 0 1 3020.dat
+1 71 40 -8 20 1 0 0 0 1 0 0 0 1 3020.dat
+0 STEP
+0 // Not yet a structurally validated fuselage cross-section.
