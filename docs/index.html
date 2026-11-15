@@ -1,10 +1,10 @@
 <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TUI 737 MAX 8 · Designlabor</title>
 <style>:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#091626;color:#eaf2fb;font:15px system-ui}header{padding:14px 18px;background:#152a42}h1{font-size:1.2rem;margin:0}header p{margin:5px 0;color:#b9c9dc}#view{height:67vh;min-height:340px;touch-action:none}main{max-width:940px;margin:auto;padding:15px}.buttons{display:flex;flex-wrap:wrap;gap:8px}button{border:1px solid #5c7591;background:#203e5b;color:white;border-radius:9px;padding:10px 12px;font:inherit}button[aria-pressed=true]{background:#ffc04a;color:#13243b;border-color:#ffc04a}.note{border-left:3px solid #ffc04a;padding-left:12px;line-height:1.55;color:#c7d6e7}a{color:#99d8ff}#status{color:#bcd0e4;font-size:.9rem;margin-top:10px}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script></head>
-<body><header><h1>TUI 737 MAX 8 · LEGO Designlabor</h1><p>Version 0.4 · LEGO-Steine deutlich sichtbar</p></header><div id="view"></div><main>
-<div class="buttons"><button data-part="all" aria-pressed="true">Gesamt</button><button data-part="body">Rumpf</button><button data-part="wings">Tragflächen</button><button data-part="engines">Triebwerke</button><button data-part="tail">Leitwerk</button><button id="reset">Ansicht zurücksetzen</button><button id="lego" aria-pressed="true">LEGO-Nase ausblenden</button><button id="detail">LEGO-Nase groß ansehen</button><button id="solo">Nur LEGO-Steine</button><button id="ghost" aria-pressed="false">Form transparent</button></div>
+<body><header><h1>TUI 737 MAX 8 · LEGO Designlabor</h1><p>Version 0.5 · LEGO-Rumpf, Spanten, Kabinenboden und Tragflächenkasten</p></header><div id="view"></div><main>
+<div class="buttons"><button data-part="all" aria-pressed="true">Gesamt</button><button data-part="body">Rumpf</button><button data-part="wings">Tragflächen</button><button data-part="engines">Triebwerke</button><button data-part="tail">Leitwerk</button><button id="reset">Ansicht zurücksetzen</button><button id="lego" aria-pressed="true">LEGO-Nase ausblenden</button><button id="detail">LEGO-Nase groß ansehen</button><button id="solo">Nur LEGO-Steine</button><button id="structure">Innenstruktur zeigen</button><button id="skin">Außenhaut ausblenden</button><button id="fuselage">Rumpf groß ansehen</button><button id="ghost" aria-pressed="false">Form transparent</button></div>
 <div id="status">Drehen: 1 Finger · Zoomen: 2 Finger · Teile einzeln auswählen</div>
-<p class="note"><strong>Konstruktionsstatus:</strong> Die originale Flugzeugform bleibt als Vergleich erhalten. Die neue Nasenstudie zeigt einzeln erkennbare Steine, Fugen und Noppen. Die Steine sind als geometrischer LEGO-Stil-Prototyp angeordnet, nicht als mechanisch geprüfte, baubare Baugruppe.</p>
+<p class="note"><strong>Konstruktionsstatus:</strong> Version 0.5 erweitert die bisherige LEGO-Nase um einen längeren Rumpfabschnitt mit Kabinenfenstern, Boden, Längsträgern, Spanten und einem Tragflächen-Mittelkasten. Die radial gedrehten Außensteine und grauen Innenbauteile sind weiterhin eine Geometrie- und Strukturstudie, keine baubare oder in Studio geprüfte Konstruktion.</p>
 <p><a href="wing-lab.html">Tragflächenlabor</a> · <a href="https://github.com/Arne188/737-max-8">Projektdateien auf GitHub</a></p></main>
 <script type="module">
 import * as THREE from 'three';import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
@@ -55,18 +55,19 @@ polygon(groups.tail,[[0,1.0,15.5],[0,7.6,18.7],[0,7.8,20.3],[0,1.0,20.6]],orange
 
 
 const legoNose=new THREE.Group();scene.add(legoNose);legoNose.visible=true;
+const legoSkin=new THREE.Group(),legoFrame=new THREE.Group();scene.add(legoSkin,legoFrame);
 const legoParts=[];const studGeo=new THREE.CylinderGeometry(.105,.105,.065,14);
 const brickGeo=new THREE.BoxGeometry(.36,.31,.72);
 const edgeGeo=new THREE.EdgesGeometry(brickGeo);
 const edgeMat=new THREE.LineBasicMaterial({color:0x0b253c,transparent:true,opacity:.35});
-const legoMat={blue:new THREE.MeshStandardMaterial({color:0x0074b9,roughness:.31}),glass:new THREE.MeshStandardMaterial({color:0x18364e,roughness:.25}),yellow:new THREE.MeshStandardMaterial({color:0xffd33a,roughness:.35})};
-function placeBrick(x,y,z,color,angle){
+const legoMat={blue:new THREE.MeshStandardMaterial({color:0x0074b9,roughness:.31}),glass:new THREE.MeshStandardMaterial({color:0x18364e,roughness:.25}),yellow:new THREE.MeshStandardMaterial({color:0xffd33a,roughness:.35}),white:new THREE.MeshStandardMaterial({color:0xf2f3f1,roughness:.38}),black:new THREE.MeshStandardMaterial({color:0x151c25,roughness:.44}),gray:new THREE.MeshStandardMaterial({color:0x98a5b3,roughness:.52})};
+function placeBrick(x,y,z,color,angle,parent=legoNose){
  const mat=legoMat[color]||legoMat.blue;
  const part=new THREE.Group();part.position.set(x,y,z);part.rotation.z=angle;
  const brick=new THREE.Mesh(brickGeo,mat);part.add(brick);
  const outline=new THREE.LineSegments(edgeGeo,edgeMat);part.add(outline);
  for(const dz of [-.18,.18]){const stud=new THREE.Mesh(studGeo,mat);stud.position.set(0,.19,dz);part.add(stud)}
- legoNose.add(part);legoParts.push({x,y,z,color,part:'3004.dat'});
+ parent.add(part);legoParts.push({x,y,z,color,part:'3004.dat'});
 }
 // Radial placement of 1x2 bricks around successive nose cross-sections.
 // Surface normals and studs point outward, so the LEGO texture is visible.
@@ -80,14 +81,50 @@ for(let k=0;k<levels.length;k++){
   placeBrick(x,y,z,cockpit?'glass':'blue',-theta);
  }
 }
+
+// Extended fuselage uses the same z-axis and radius as the original form model.
+// Radially oriented bricks are a surface sampling, NOT valid stud connections.
+for(let k=0;k<23;k++){
+ const z=-11.1+k*.7,r=1.78,n=28;
+ for(let i=0;i<n;i++){
+  const theta=2*Math.PI*(i+(k%2)*.5)/n,x=Math.sin(theta)*r,y=Math.cos(theta)*r;
+  const side=Math.abs(x)>1.52;
+  const window=side&&y>.48&&y<1.07&&(k%3!==2);
+  const check=side&&y<.15&&y>-.92&&((Math.floor(k/2)+Math.floor((y+.9)/.48))%2===0);
+  const c=z< -9.0?'yellow':window?'glass':check?'black':'white';
+  placeBrick(x,y,z,c,-theta,legoSkin);
+ }
+}
+const frameMat=legoMat.gray;
+function bar(x,y,z,sx,sy,sz){const b=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),frameMat);b.position.set(x,y,z);legoFrame.add(b);return b}
+function brace(a,b,thickness=.15){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),d=new THREE.Vector3().subVectors(B,A);const o=new THREE.Mesh(new THREE.BoxGeometry(thickness,d.length(),thickness),frameMat);o.position.copy(A).add(B).multiplyScalar(.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());legoFrame.add(o)}
+// Floor grid, two longitudinal beams, repeated transverse frames and central wing box.
+for(const side of [-1,1]){bar(side*.95,-.75,-3.5,.22,.22,16);bar(side*1.18,-1.20,-3.5,.18,.18,16)}
+for(let z=-10.5;z<=4.5;z+=2.5){
+ bar(0,-.82,z,2.65,.15,.32);
+ for(const side of [-1,1]){
+  brace([side*1.18,-.78,z],[side*1.66,-.12,z]);
+  brace([side*1.66,-.12,z],[side*1.15,1.22,z]);
+  brace([side*1.15,1.22,z],[0,1.69,z]);
+ }
+}
+for(let z=-10.5;z<=4.5;z+=1.0)for(let x=-1.1;x<=1.1;x+=.55)bar(x,-.68,z,.52,.11,.88);
+// Center wing box: wing root attachment is illustrative, no load analysis.
+for(const z of [-2.8,2.5]){bar(0,-.98,z,8.6,.4,.34)}
+for(const side of [-1,1]){bar(side*3.9,-.95,-.15,.3,.5,5.7);brace([side*1.4,-.95,-2.8],[side*4,-.95,-.15],.23);brace([side*1.4,-.95,2.5],[side*4,-.95,-.15],.23)}
+
 // Two demonstrative longitudinal rails show where a real supporting structure must be developed.
 const beamMat=new THREE.MeshStandardMaterial({color:0x8c99a9,roughness:.52});
 for(const side of [-1,1]){const beam=new THREE.Mesh(new THREE.BoxGeometry(.22,.22,6.9),beamMat);beam.position.set(side*.78,-.82,-15.2);legoNose.add(beam)}
 const legoBtn=document.getElementById('lego'),detailBtn=document.getElementById('detail'),soloBtn=document.getElementById('solo');
+function focusFuselage(){camera.position.set(11,7,-11);controls.target.set(0,0,-4);controls.update()}
 function focusNose(){camera.position.set(8,5,-25);controls.target.set(0,0,-15.7);controls.update()}
 legoBtn.onclick=()=>{legoNose.visible=!legoNose.visible;legoBtn.setAttribute('aria-pressed',String(legoNose.visible));legoBtn.textContent=legoNose.visible?'LEGO-Nase ausblenden':'LEGO-Nase einblenden'};
 detailBtn.onclick=()=>{legoNose.visible=true;legoBtn.setAttribute('aria-pressed','true');legoBtn.textContent='LEGO-Nase ausblenden';focusNose()};
-let onlyLego=false;soloBtn.onclick=()=>{onlyLego=!onlyLego;Object.values(groups).forEach(g=>g.visible=!onlyLego);legoNose.visible=true;soloBtn.setAttribute('aria-pressed',String(onlyLego));if(onlyLego)focusNose();else{camera.position.set(27,17,-31);controls.target.set(0,0,0);controls.update()}};
+let onlyLego=false;soloBtn.onclick=()=>{onlyLego=!onlyLego;Object.values(groups).forEach(g=>g.visible=!onlyLego);legoNose.visible=true;legoSkin.visible=true;legoFrame.visible=true;soloBtn.setAttribute('aria-pressed',String(onlyLego));if(onlyLego)focusNose();else{camera.position.set(27,17,-31);controls.target.set(0,0,0);controls.update()}};
+document.getElementById('structure').onclick=()=>{legoFrame.visible=!legoFrame.visible;document.getElementById('structure').textContent=legoFrame.visible?'Innenstruktur ausblenden':'Innenstruktur zeigen';};
+document.getElementById('skin').onclick=()=>{legoSkin.visible=!legoSkin.visible;document.getElementById('skin').textContent=legoSkin.visible?'Außenhaut ausblenden':'Außenhaut einblenden';};
+document.getElementById('fuselage').onclick=()=>{Object.values(groups).forEach(g=>g.visible=false);legoNose.visible=true;legoSkin.visible=true;legoFrame.visible=true;focusFuselage()};
 let ghost=false;const originalMats=[white,blue,navy,orange,yellow,metal,black,windowMat];document.getElementById('ghost').onclick=()=>{ghost=!ghost;for(const mat of originalMats){mat.transparent=ghost;mat.opacity=ghost?.16:1;mat.depthWrite=!ghost;}document.getElementById('ghost').setAttribute('aria-pressed',String(ghost));};
 
 function resize(){const w=el.clientWidth,h=el.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}window.addEventListener('resize',resize);resize();
