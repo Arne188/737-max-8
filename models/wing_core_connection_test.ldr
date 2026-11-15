@@ -1,0 +1,15 @@
+0 FILE wing_core_connection_test.ldr
+0 TUI 737 MAX 8 - connected plate overlap test (NOT a complete wing)
+0 Name: wing_core_connection_test.ldr
+0 Author: ChatGPT
+0 !LICENSE Redistributable under CC0-1.0
+0 // LDraw axes: x right, y down, z forward; all units LDU (20 LDU = 1 stud)
+0 // Four 2x4 plates (3020) on two layers; nominal stud overlap; check in Studio
+0 STEP
+1 15 -20 0 0 1 0 0 0 1 0 0 0 1 3020.dat
+1 15 20 0 0 1 0 0 0 1 0 0 0 1 3020.dat
+0 STEP
+1 15 0 -8 20 1 0 0 0 1 0 0 0 1 3020.dat
+1 15 0 -8 -20 1 0 0 0 1 0 0 0 1 3020.dat
+0 STEP
+0 // This is a connection experiment, not a validated final structure.
